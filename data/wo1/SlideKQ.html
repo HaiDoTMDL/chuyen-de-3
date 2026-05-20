@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Kết quả Thực nghiệm</title>
+    <style>
+        /* --- CÀI ĐẶT CƠ BẢN ĐỂ RESPONSIVE TRONG ISPRING --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f5f6f8; /* Màu nền xám nhạt đồng bộ */
+            padding: 25px 35px; /* Giữ khoảng cách lề an toàn để không bị sát viền */
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto; /* Cho phép cuộn nếu bảng quá dài trên màn hình quá bé */
+        }
+
+        /* --- TIÊU ĐỀ --- */
+        .slide-title {
+            color: #002b49;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 25px; 
+            text-align: center; /* Căn giữa cho cân đối toàn màn hình */
+        }
+
+        /* --- BẢNG DỮ LIỆU CHÍNH --- */
+        .table-container {
+            width: 100%; /* Tràn viền 100% không gian còn lại */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Tạo bóng đổ nhẹ cho bảng */
+            border-radius: 6px;
+            overflow: hidden; /* Bo góc bảng */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            text-align: center;
+            font-size: 17px; /* Tăng size chữ vì đã có nhiều không gian hơn */
+        }
+
+        th, td {
+            border: 1px solid #cdd4da;
+            padding: 10px 8px; /* Giãn cách các ô cho thoáng */
+        }
+
+        /* Dòng Tiêu đề cột (Header) */
+        thead th {
+            background-color: #002b49;
+            color: white;
+            font-weight: bold;
+            border-color: #002b49;
+            font-size: 18px;
+            padding: 12px 5px;
+        }
+
+        /* Dòng Tiêu đề Khối (Row Groups) */
+        .section-header th {
+            background-color: #123e61;
+            color: white;
+            text-align: left;
+            padding-left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-color: #123e61;
+            padding: 8px 20px;
+        }
+
+        /* Cột đầu tiên bên trái */
+        tbody td:first-child {
+            text-align: left;
+            padding-left: 30px;
+            background-color: #1a4d74;
+            color: white;
+            border-color: #1a4d74;
+        }
+
+        /* Xen kẽ màu hàng để dễ nhìn */
+        tbody tr:nth-child(even) td:not(:first-child) { background-color: #f9f9f9; }
+        tbody tr:nth-child(odd) td:not(:first-child) { background-color: #ffffff; }
+
+        /* Highlight màu cho các ô chỉ số nổi bật */
+        .bg-yellow-light { background-color: #fdf3d1 !important; }
+        .bg-yellow-dark { background-color: #dcb34e !important; font-weight: bold;}
+        .bg-red-light { background-color: #f7dcdb !important; color: #a92323;}
+        .bg-red-dark { background-color: #e59d9c !important; font-weight: bold; color: #841414;}
+
+        /* Hiệu ứng rê chuột nhẹ nhàng vào hàng */
+        tbody tr:not(.section-header):hover td:not(:first-child) {
+            filter: brightness(0.95);
+            transition: all 0.2s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1 class="slide-title">Bảng Kết quả Thực nghiệm</h1>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Chỉ số \ Mô hình</th> 
+                    <th>Baseline</th>
+                    <th>Lite</th>
+                    <th>SOTA</th>
+                    <th>SOTA Pruned</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Khối 1 -->
+                <tr class="section-header"><th colspan="5">Khối 1: Hiệu suất Truy xuất</th></tr>
+                <tr>
+                    <td>Hit@k</td>
+                    <td>0.9410</td><td>0.9610</td><td><strong>0.9880</strong></td><td><strong>0.9880</strong></td>
+                </tr>
+                <tr>
+                    <td>MRR@k</td>
+                    <td>0.8737</td><td>0.9133</td><td>0.9573</td><td><strong>0.9585</strong></td>
+                </tr>
+                <tr>
+                    <td>Context Recall</td>
+                    <td>0.2883</td><td>0.5776</td><td class="bg-yellow-light">0.5984</td><td class="bg-yellow-dark">0.6043</td>
+                </tr>
+
+                <!-- Khối 2 -->
+                <tr class="section-header"><th colspan="5">Khối 2: Sinh văn bản (N-gram)</th></tr>
+                <tr>
+                    <td>BLEU Score</td>
+                    <td>0.0295</td><td><strong>0.0853</strong></td><td class="bg-red-light">0.0463</td><td class="bg-red-light">0.0255</td>
+                </tr>
+                <tr>
+                    <td>ROUGE-L F1</td>
+                    <td>0.1871</td><td><strong>0.3247</strong></td><td class="bg-red-light">0.2482</td><td class="bg-red-light">0.1772</td>
+                </tr>
+                <tr>
+                    <td>BERTScore F1</td>
+                    <td>0.6650</td><td><strong>0.7234</strong></td><td class="bg-yellow-light">0.7012</td><td class="bg-yellow-light">0.6807</td>
+                </tr>
+
+                <!-- Khối 3 -->
+                <tr class="section-header"><th colspan="5">Khối 3: LLM-as-a-Judge (G-EVAL)</th></tr>
+                <tr>
+                    <td>Correctness</td>
+                    <td>4.5420</td><td>6.0040</td><td>7.2350</td><td><strong>7.2570</strong></td>
+                </tr>
+                <tr>
+                    <td>Faithfulness</td>
+                    <td>3.4430</td><td>5.3340</td><td><strong>7.0000</strong></td><td>6.7370</td>
+                </tr>
+                <tr>
+                    <td>Helpfulness</td>
+                    <td>4.1010</td><td>5.6370</td><td class="bg-yellow-light">6.7080</td><td class="bg-yellow-dark">7.4460</td>
+                </tr>
+
+                <!-- Khối 4 -->
+                <tr class="section-header"><th colspan="5">Khối 4: Chi phí Thời gian</th></tr>
+                <tr>
+                    <td>Thời gian Truy xuất</td>
+                    <td><strong>0.017 s</strong></td><td>1.201 s</td><td>0.09 s</td><td class="bg-red-light">1.414 s</td>
+                </tr>
+                <tr>
+                    <td>Thời gian Sinh văn bản</td>
+                    <td><strong>0.5434 s</strong></td><td>5.961 s</td><td>21.5 s</td><td class="bg-red-light">18.15 s</td>
+                </tr>
+                <tr>
+                    <td><strong>Tổng thời gian</strong></td>
+                    <td><strong>0.5604 s</strong></td><td>7.162 s</td><td>21.6 s</td><td class="bg-red-dark">19.56 s</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

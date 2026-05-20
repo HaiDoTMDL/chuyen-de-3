@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minh chứng Thực nghiệm: Kết quả Đầu ra</title>
+    <style>
+        /* --- CÀI ĐẶT CƠ BẢN --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f1f6fa;
+            /* Tạo background hoa văn mờ (geometric lines) giống ảnh gốc */
+            background-image: 
+                linear-gradient(135deg, rgba(255,255,255,0.5) 25%, transparent 25%),
+                linear-gradient(225deg, rgba(255,255,255,0.5) 25%, transparent 25%),
+                linear-gradient(45deg, rgba(255,255,255,0.5) 25%, transparent 25%),
+                linear-gradient(315deg, rgba(255,255,255,0.5) 25%, #f1f6fa 25%);
+            background-position: 10px 0, 10px 0, 0 0, 0 0;
+            background-size: 100px 100px;
+            background-repeat: repeat;
+            width: 100vw; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        /* Khung Wrapper tự động thu phóng (Auto-scale) */
+        #scale-wrapper {
+            width: 1280px; height: 720px;
+            transform-origin: center center;
+            display: flex; flex-direction: column; align-items: center;
+            position: relative;
+        }
+
+        /* --- TIÊU ĐỀ --- */
+        .main-title {
+            color: #1a6296;
+            font-size: 40px;
+            font-weight: bold;
+            width: 100%;
+            padding-left: 50px;
+            margin-top: 30px;
+            margin-bottom: 25px;
+            text-align: left;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- VÙNG HIỂN THỊ CHAT --- */
+        .chat-container {
+            width: 1180px;
+            height: 480px;
+            background-color: #f2f2f2;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            opacity: 0; /* Ẩn đi chờ JS gọi */
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        .row-user { justify-content: flex-end; }
+        .row-system { justify-content: flex-start; }
+
+        /* Khung Bubble chung */
+        .bubble {
+            border: 1.5px solid #1a6296;
+            border-radius: 18px;
+            padding: 20px 30px;
+            font-size: 22px;
+            line-height: 1.5;
+            color: #111;
+            max-width: 85%;
+        }
+
+        /* User Bubble */
+        .bubble-user {
+            background-color: #d1e5f4;
+            border-bottom-right-radius: 5px; /* Vuông góc chỉ ở dưới bên phải */
+        }
+
+        /* System Bubble */
+        .bubble-system {
+            background-color: #ffffff;
+            border-top-left-radius: 5px; /* Vuông góc chỉ ở trên bên trái */
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Con trỏ nhấp nháy mô phỏng gõ chữ */
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 22px;
+            background-color: #111;
+            vertical-align: middle;
+            animation: blink 0.7s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* --- ĐƯỜNG NỐI VÀ FOOTER ĐÁNH GIÁ --- */
+        .connector-wrapper {
+            position: absolute;
+            bottom: 30px; left: 100px;
+            width: 1080px; height: 80px;
+            z-index: 1;
+        }
+
+        .svg-line {
+            width: 100%; height: 100%;
+            overflow: visible;
+        }
+        .svg-line path {
+            fill: none; stroke: #1a6296; stroke-width: 2;
+            stroke-dasharray: 500; stroke-dashoffset: 500; /* Dùng để tạo animation vẽ đường */
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+
+        .footer-box {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: #eaf3fa;
+            border-top: 2px solid #1a6296;
+            border-bottom: 2px solid #1a6296;
+            padding: 12px 25px;
+            font-size: 24px;
+            color: #111;
+            opacity: 0;
+            transition: all 0.6s ease-out;
+        }
+
+        /* Vẽ 2 ngoặc vuông 2 bên của footer box giống ảnh gốc */
+        .footer-box::before, .footer-box::after {
+            content: ""; position: absolute;
+            top: -6px; bottom: -6px; width: 8px;
+            border: 2px solid #1a6296;
+        }
+        .footer-box::before { left: -2px; border-right: none; }
+        .footer-box::after { right: -2px; border-left: none; }
+
+        /* Các lớp hỗ trợ Animation do JS thêm vào */
+        .show-message { opacity: 1; transform: translateY(0); }
+        .draw-line path { stroke-dashoffset: 0; }
+        .show-footer { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    </style>
+</head>
+<body>
+
+    <div id="scale-wrapper">
+        <h1 class="main-title">Minh chứng Thực nghiệm: Kết quả Đầu ra</h1>
+
+        <div class="chat-container">
+            <!-- Tin nhắn người dùng -->
+            <div class="message-row row-user" id="wrap-user">
+                <div class="bubble bubble-user">
+                    <span id="text-user"></span><span class="cursor" id="cursor-user"></span>
+                </div>
+            </div>
+
+            <!-- Tin nhắn hệ thống (AI) -->
+            <div class="message-row row-system" id="wrap-system">
+                <div class="bubble bubble-system">
+                    <span id="text-system"></span><span class="cursor" id="cursor-system" style="display: none;"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cụm đường kẻ và hộp đánh giá bên dưới -->
+        <div class="connector-wrapper">
+            <!-- SVG vẽ đường gập khúc từ góc trái Chat box xuống Footer box -->
+            <svg class="svg-line" id="svg-connector">
+                <!-- Start (0, -20), gập xuống (0, 30), kéo ngang sang phải (100, 30) -->
+                <path d="M -10 -15 L -10 30 L 140 30" />
+            </svg>
+        </div>
+
+        <div class="footer-box" id="footer-eval">
+            <strong>Helpfulness:</strong> 7.44/10 &nbsp;|&nbsp; <strong>Faithfulness:</strong> Hoàn toàn Grounded vào dữ liệu nguồn.
+        </div>
+    </div>
+
+    <!-- SCRIPT ĐIỀU KHIỂN LOGIC -->
+    <script>
+        // 1. Dữ liệu đoạn chat (Hỗ trợ HTML tag)
+        const userHTML = "Anh/chị có thể cho em biết <strong>thông tin liên hệ</strong> của <strong>Phòng Đào tạo Đại học Công nghiệp TP.HCM</strong> được không ạ? Em cần liên hệ ai nếu muốn hỏi về tuyển sinh?";
+        
+        const systemHTML = "Thông tin <strong>liên hệ của Phòng Đào tạo</strong> (Theo Điều 5, Quy chế Tuyển sinh):<br>- Địa chỉ: Số 12 Nguyễn Văn Bảo, P. Hạnh Thông, TP. HCM (Nhà B)<br>- Điện thoại: 0283.8940390<br><strong>Chuyên viên phụ trách mảng Tuyển sinh:</strong><br>- <strong>Thầy Bùi Quốc Tiến</strong> (Tổ trưởng) - Email: buiquoctien@iuh.edu.vn<br>- <strong>Cô Đỗ Thị Hải</strong> (Chuyên viên) - Email: dothihai@iuh.edu.vn";
+
+        // 2. Hàm trì hoãn (sleep)
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        // 3. Hàm gõ chữ thông minh (Giữ nguyên định dạng thẻ HTML in đậm, xuống dòng)
+        async function typeWriterWithHTML(elementId, cursorId, htmlString, speed) {
+            const textElement = document.getElementById(elementId);
+            const cursor = document.getElementById(cursorId);
+            cursor.style.display = 'inline-block'; // Hiện con trỏ
+
+            let i = 0;
+            let isTag = false;
+            let currentContent = "";
+
+            while (i < htmlString.length) {
+                // Nếu gặp dấu <, xác định là bắt đầu thẻ HTML, lấy toàn bộ cụm <... > cùng lúc
+                if (htmlString.charAt(i) === '<') {
+                    isTag = true;
+                }
+                
+                currentContent += htmlString.charAt(i);
+                
+                if (htmlString.charAt(i) === '>') {
+                    isTag = false;
+                }
+
+                // Nếu không phải đang ở giữa thẻ HTML thì mới in ra và delay
+                if (!isTag) {
+                    textElement.innerHTML = currentContent;
+                    // Random tốc độ để giống người gõ (speed +- 10ms)
+                    let randomSpeed = speed + (Math.random() * 20 - 10);
+                    await sleep(randomSpeed);
+                }
+                i++;
+            }
+            cursor.style.display = 'none'; // Gõ xong thì ẩn con trỏ
+        }
+
+        // 4. Kịch bản chạy trình diễn (Choreography)
+        async function runChatAnimation() {
+            // Bước 1: Hiện khung của người dùng
+            await sleep(800); // Chờ slide load xong
+            document.getElementById('wrap-user').classList.add('show-message');
+            
+            // Bước 2: Gõ câu hỏi của người dùng (gõ nhanh)
+            await sleep(500);
+            await typeWriterWithHTML('text-user', 'cursor-user', userHTML, 25);
+
+            // Bước 3: Đợi AI "suy nghĩ"
+            await sleep(1000);
+
+            // Bước 4: Hiện khung của hệ thống và bắt đầu trả lời
+            document.getElementById('wrap-system').classList.add('show-message');
+            // Cố tình delay một chút mới bắt đầu gõ để cảm giác thật hơn
+            await sleep(600); 
+            await typeWriterWithHTML('text-system', 'cursor-system', systemHTML, 18);
+
+            // Bước 5: Hiện đường nối
+            await sleep(600);
+            document.getElementById('svg-connector').classList.add('draw-line');
+
+            // Bước 6: Hiện khung kết quả đánh giá (Footer)
+            await sleep(500);
+            document.getElementById('footer-eval').classList.add('show-footer');
+        }
+
+        // 5. Script Tự động thu phóng (Auto-scale cho iSpring)
+        function scaleToFit() {
+            const wrapper = document.getElementById('scale-wrapper');
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            const scaleX = winW / 1280;
+            const scaleY = winH / 720;
+            const scale = Math.min(scaleX, scaleY) * 0.99;
+            wrapper.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener('resize', scaleToFit);
+        window.addEventListener('DOMContentLoaded', () => {
+            scaleToFit();
+            // Bắt đầu chạy Animation sau khi trang đã scale xong
+            runChatAnimation();
+        });
+
+    </script>
+</body>
+</html>
